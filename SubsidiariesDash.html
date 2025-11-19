@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>داشبورد عملکردی هلدینگ‌ها و شرکت‌های بنیاد مسکن — نسخه نهایی و اصلاح شده</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800&display=swap');
+    
+    /* ... (CSS متغیرها و استایل‌های اصلی) ... */
+    :root{
+      --bg-1: linear-gradient(180deg,#fbfdff,#f5f8fc);
+      --card-bg: linear-gradient(180deg,#ffffff,#fbfdff);
+      --primary: #2563eb;
+      --secondary: #10b981;
+      --text-color: #0f172a;
+      --muted-color: #64748b;
+    }
+    
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:'Vazirmatn',sans-serif;
+      background:var(--bg-1);
+      color:var(--text-color);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    .muted{color:var(--muted-color)}
+    .card{
+      background:var(--card-bg);
+      border-radius:12px;
+      box-shadow:0 8px 30px rgba(15,23,42,0.06);
+border-right: 3px solid #096;
+border-bottom: 3px solid #096;
+
+      transition:transform .15s,box-shadow .15s;
+    }
+
+.p-2 { padding: 0rem !important; }
+    .card:hover{transform:translateY(-4px);box-shadow:0 15px 40px rgba(15,23,42,0.08)}
+    .icon-sm{width:48px;height:48px;border-radius:10px;object-fit:cover;border:1px solid rgba(0,0,0,0.06);background:white}
+    .kpi-num{font-size:1.8rem;font-weight:800}
+    .progress-bar{height:10px;border-radius:999px;background:#eef2ff;overflow:hidden}
+    .progress-fill{height:100%;border-radius:999px}
+    
+    /* اصلاح ابعاددهی برای جلوگیری از کشیدگی */
+    .chart-wrap canvas{width:100%!important;height:360px!important}
+    .small-canvas{height:220px!important}
+    
+    /* اصلاح ارتفاع برای نمودار Top 12 برای خوانایی بهتر */
+    #rankingBar{height:400px!important} 
+
+    @media (max-width:900px){ 
+      .chart-wrap canvas{height:280px!important} 
+      .small-canvas{height:180px!important} 
+      #rankingBar{height:320px!important}
+    }
+  </style>
+</head>
+<body>
+  <div class="max-w-7xl mx-auto p-4 sm:p-6">
+    
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-lg bg-white/90 flex items-center justify-center shadow">
+          <img src="https://bonyadmaskan.github.io/Images/BonyadLogo.png" alt="لوگو بنیاد مسکن" class="w-12 h-12 object-contain">
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-extrabold text-slate-800">داشبورد عملکردی هلدینگ‌ها و شرکت‌های تابعه</h1>
+          <p class="text-xs muted mt-1">نسخه نمایشی — داده‌ها فرضی | نمایش اسکرولی</p>
+        </div>
+      </div>
+      <div class="self-end sm:self-center text-left">
+        <div class="text-xs px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-cyan-400 text-white shadow">تاریخ گزارش: **آبان ۱۴۰۴**</div>
+      </div>
+    </header>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="card p-4 text-center">
+        <div class="muted text-sm">درآمد کل (میلیارد ریال)</div>
+        <div class="kpi-num text-emerald-700">۱۵,۸۷۰</div>
+        <div class="text-xs muted mt-2">تحقق برنامه: <span class="font-semibold text-emerald-600">۱۰۶٪</span></div>
+      </div>
+      <div class="card p-4 text-center">
+        <div class="muted text-sm">سود خالص کل (میلیارد ریال)</div>
+        <div class="kpi-num text-emerald-700">۱,۱۱۰</div>
+        <div class="text-xs muted mt-2">حاشیه سود: <span class="font-semibold">۷٪</span></div>
+      </div>
+      <div class="card p-4 text-center">
+        <div class="muted text-sm">واحدهای تحویلی (واحد)</div>
+        <div class="kpi-num text-sky-700">۴,۹۰۰</div>
+        <div class="text-xs muted mt-2">تحقق: <span class="font-semibold text-yellow-600">۹۴٪</span></div>
+      </div>
+      <div class="card p-4 text-center">
+        <div class="muted text-sm">رشد نسبت به سال قبل</div>
+        <div class="kpi-num text-indigo-700"> +۱۲</div>
+        <div class="text-xs muted mt-2">شاخص کل بنیاد</div>
+      </div>
+    </section>
+
+    <section class="card p-4 mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="font-bold text-lg">تجزیه سود کل بر اساس بخش عملیاتی — نمودار میله‌ای انباشته</h2>
+          <p class="text-xs muted">نمایش سهم سود هر هلدینگ و شرکت‌های مستقل</p>
+        </div>
+        <div class="text-sm muted">میلیارد ریال</div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="profitStack"></canvas>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+      <div class="card p-4 chart-wrap"> 
+        <h3 class="font-semibold mb-2">سهم درآمد هلدینگ‌ها (دونوت)</h3>
+        <canvas id="holdingsDonut" class="small-canvas"></canvas>
+      </div>
+
+      <div class="card p-4 chart-wrap">
+        <h3 class="font-semibold mb-2">مقایسه تحقق KPI هلدینگ‌ها (قطبی)</h3>
+        <canvas id="holdingsPolar" class="small-canvas"></canvas>
+      </div>
+
+      <div class="card p-4 chart-wrap">
+        <h3 class="font-semibold mb-2">شاخص کل بنیاد (رادار)</h3>
+        <canvas id="radarMain" class="small-canvas"></canvas>
+      </div>
+    </section>
+
+
+    <div id="holdingsSections" class="space-y-6 mb-6"></div>
+
+    <section class="mb-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
+        <h2 class="text-lg font-bold">شرکت‌های مستقل و خدماتی — تحلیل و سهم درآمد</h2>
+        <div class="muted text-xs">شامل: سامان محیط، آزادراه، سیمان و ...</div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card p-4 chart-wrap">
+          <h3 class="font-semibold mb-2">سهم درآمد شرکت‌های مستقل</h3>
+          <canvas id="independentDonut" class="small-canvas"></canvas>
+        </div>
+
+        <div class="card p-4">
+          <h3 class="font-semibold mb-2">کارت‌های سریع شرکت‌های مستقل</h3>
+          <div id="independentCards" class="space-y-3"></div>
+        </div>
+
+        <div class="card p-4">
+          <h3 class="font-semibold mb-2">نوار پیشرفت کلی شرکت‌های مستقل</h3>
+          <div id="independentProgress" class="space-y-3"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div class="card p-4">
+        <h3 class="font-semibold text-blue-700">آسیب‌شناسی خلاصه <span class="text-sm">⚠️</span></h3>
+        <ul class="text-sm muted mt-3 list-disc pr-4 space-y-2">
+          <li>تأخیر در وصول مطالبات؛ فشار بر نقدینگی پروژه‌محورها.</li>
+          <li>نوسان قیمت مصالح و اثر بر حاشیه سود تولید.</li>
+          <li>نیاز به مکانیزم تهاتر یا اوراق برای وصول مطالبات دولت.</li>
+        </ul>
+      </div>
+      <div class="card p-4">
+        <h3 class="font-semibold text-green-700">توصیه‌های راهبردی <span class="text-sm">✅</span></h3>
+        <ol class="text-sm muted mt-3 list-decimal pr-4 space-y-2">
+          <li>توافق تثبیت قیمت مصالح با بنیاد بتن برای پروژه‌های بلندمدت.</li>
+          <li>پایش ماهانه جریان نقدی و تشکیل کمیته وصول مطالبات.</li>
+          <li>پایلوت صادرات مصالح ساختمانی به بازارهای منطقه‌ای.</li>
+        </ol>
+      </div>
+    </section>
+
+    <footer class="text-center text-xs muted py-6 border-t border-slate-200 mt-4">
+      **نسخه نمایشی** — داده‌ها فرضی جهت ارائه و بررسی | طراحی و توسعه: بنیاد مسکن
+    </footer>
+  </div>
+
+  <script>
+  /* ========================= داده‌ها، پالت و Utility ========================= */
+  const D = {
+    holdings: [
+        {
+            id: 'ijad', name: 'شرکت ایجاد محیط (هلدینگ)', revenue: 3250, profit: 240, perf: 92, icon: 'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/IjadMohit.jpg',
+            subs: [
+              {name:'نوسازی و عمران اکباتان', revenue: 750, profit: 45, perf:90}, {name:'تولیدی خانه گستر یکم', revenue: 620, profit: 40, perf:92},
+              {name:'تجهیز محیط', revenue: 540, profit: 35, perf:88}, {name:'ساخت آزما', revenue: 420, profit: 30, perf:95},
+              {name:'مهندسین مشاور اکباتان', revenue: 310, profit: 18, perf:89}, {name:'ایجاد محیط بین‌‌الملل', revenue: 180, profit: 6, perf:70},
+              {name:'مرکز مطالعات و تحقیقات', revenue: 230, profit: 6, perf:76}
+            ]
+        },
+        {
+            id: 'bbeton', name: 'شرکت بنیاد بتن ایران (هلدینگ)', revenue: 5500, profit: 300, perf:109, icon: 'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/BonyadBeton.png',
+            subs: [
+              {name:'بنیاد بتن آذر آبادگان', revenue: 520, profit: 28, perf:105}, {name:'بنیاد بتن آذرعمران غرب', revenue: 480, profit: 26, perf:100},
+              {name:'بنیاد بتن اصفهان', revenue: 610, profit: 35, perf:110}, {name:'بتن ارم', revenue: 430, profit: 20, perf:103},
+              {name:'بنیاد بتن جنوب شرق', revenue: 520, profit: 27, perf:111}, {name:'بنیاد بتن شرق بنیان', revenue: 450, profit: 24, perf:107},
+              {name:'بنیاد بتن خراسان', revenue: 530, profit: 29, perf:108}, {name:'بتن خوزستان', revenue: 410, profit: 16, perf:99},
+              {name:'بنیاد بتن کاسپین', revenue: 520, profit: 27, perf:112}, {name:'بنیاد بتن هرمزگان', revenue: 525, profit: 28, perf:110}
+            ]
+        },
+        {
+            id: 'tose', name: 'شرکت سازمان توسعه مسکن ایران (هلدینگ)', revenue: 4700, profit: 390, perf:88, icon: 'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/ToseMaskan.jpg',
+            subs: [
+              {name:'توسعه مسکن آذربایجان', revenue: 420, profit: 302, perf:55}, {name:'توسعه مسکن اصفهان', revenue: 520, profit: 450, perf:65},
+              {name:'توسعه مسکن اردبیل', revenue: 280, profit: 108, perf:85}, {name:'توسعه مسکن تهران', revenue: 650, profit: 500, perf:71},
+              {name:'توسعه مسکن خاوران', revenue: 410, profit: 328, perf:65}, {name:'توسعه مسکن خوزستان', revenue: 360, profit: 220, perf:82},
+              {name:'توسعه مسکن سمنان', revenue: 210, profit: 102, perf:81}, {name:'توسعه مسکن کویر', revenue: 200, profit: 100, perf:73},
+              {name:'توسعه مسکن هرمزگان', revenue: 225, profit: 94, perf:87}, {name:'توسعه مسکن آبادگران یکم', revenue: 170, profit: 58, perf:80},
+              {name:'ارگ مسکن جنوب', revenue: 224, profit: 108, perf:82}
+            ]
+        }
+    ],
+    independents: [
+      {name:'سامان محیط', revenue: 2420, profit: 180, perf:91, icon:'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/SamanMohit.jpg'},
+      {name:'پژوهشکده سوانح طبیعی', revenue: 85, profit: 4, perf:85, icon:'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/Pazhoheshkadeh.jpg'},
+      {name:'آزادراه اهواز – بندر امام', revenue: 620, profit: 45, perf:90, icon:'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/AzadRah.jpg'},
+      {name:'کارخانجات آجر ماشینی شهید شالباف', revenue: 140, profit: 9, perf:89, icon:'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/Shalbaf.jpg'},
+      {name:'سرمایه‌گذاری خانه گستر یکم', revenue: 210, profit: 12, perf:88, icon:'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/KhaneGostar1.jpg'},
+      {name:'صنایع سیمان شهرکرد', revenue: 360, profit: 20, perf:95, icon:'https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/SimanShahreKord.jpg'},
+    ]
+  };
+
+  const palette = ['#2563eb','#10b981','#f59e0b','#7c3aed','#06b6d4','#ef4444','#8b5cf6','#06b6d4','#fb7185','#f97316'];
+  const toLocale = x => x.toLocaleString('fa-IR');
+
+  // تابع مشترک برای ساخت نمودارها
+  function createChart(id, type, data, options = {}, plugins = [ChartDataLabels]) {
+    const ctx = document.getElementById(id);
+    if (!ctx) return; // اطمینان از وجود المان قبل از ساخت نمودار
+    
+    // ... (تنظیمات Chart.js) ...
+    const defaultOptions = {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { 
+        legend: { position: 'bottom', labels: { font: { family: 'Vazirmatn' } } },
+        datalabels: {
+          color: 'white',
+          font: { weight: 'bold', family: 'Vazirmatn', size: 10 },
+          formatter: (value, context) => value > 0 ? toLocale(value) : '',
+          display: type === 'bar' || type === 'doughnut' ? 'auto' : false
+        },
+        tooltip: { rtl: true, bodyFont: { family: 'Vazirmatn' }, titleFont: { family: 'Vazirmatn' } }
+      },
+      ...options
+    };
+
+    const config = { type, data, options: defaultOptions, plugins };
+
+    if (type === 'bar') {
+      config.options.elements = { bar: { borderRadius: 8 } };
+      if (options.indexAxis === 'y') {
+         config.options.plugins.datalabels.display = false;
+      }
+    }
+
+    new Chart(ctx, config);
+  }
+
+  /* ========================= نمودارهای عمومی و اصلی (بالایی) ========================= */
+
+  function renderGeneralCharts() {
+    // Growth Line
+    createChart('growthLine', 'line', {
+      labels: ['۱۳۹۹','۱۴۰۰','۱۴۰۱','۱۴۰۲','۱۴۰۳'],
+      datasets: [
+        {label:'درآمد (میلیارد)', data: [8200, 9700, 11000, 14050, 15870], borderColor: palette[0], backgroundColor: 'rgba(37,99,235,0.15)', fill:true, tension:0.4, pointRadius:5, pointBackgroundColor: 'white', borderWidth: 3},
+        {label:'سود خالص (میلیارد)', data: [420, 550, 720, 950, 1110], borderColor: palette[1], backgroundColor: 'rgba(16,185,129,0.1)', fill:true, tension:0.4, pointRadius:5, pointBackgroundColor: 'white', borderWidth: 3}
+      ]
+    }, { scales: { y: { beginAtZero: false, grid: { drawBorder: false } }, x: { grid: { display: false } } }, plugins: { datalabels: { display: false } } });
+
+    // Quarterly Area
+    createChart('quarterlyArea', 'line', {
+        labels: ['بهار ۱۴۰۴', 'تابستان ۱۴۰۴', 'پاییز ۱۴۰۴'],
+        datasets: [
+            {label: 'توسعه مسکن (ساخت)', data: [95, 88, 92], borderColor: palette[0], backgroundColor: 'rgba(37,99,235,0.1)', fill: true, tension: 0.4, stack: 'stack1'},
+            {label: 'بنیاد بتن (تولید)', data: [105, 110, 108], borderColor: palette[2], backgroundColor: 'rgba(245,158,11,0.1)', fill: true, tension: 0.4, stack: 'stack1'}
+        ]
+    }, { scales: { y: { beginAtZero: false, title: { display: true, text: 'درصد تحقق' } }, x: { grid: { display: false } } }, plugins: { datalabels: { display: false } } });
+
+    // Holdings Donut (اصلاح ابعاد و نسبت برای جلوگیری از کشیدگی)
+    const totalRevenue = D.holdings.reduce((s,h)=>s+h.revenue,0) + D.independents.reduce((s,i)=>s+i.revenue,0);
+    createChart('holdingsDonut', 'doughnut', {
+      labels: D.holdings.map(h=>h.name),
+      datasets: [{data: D.holdings.map(h=>h.revenue), backgroundColor: palette, borderWidth: 2}]
+    }, { 
+      cutout: '60%', 
+      plugins: { datalabels: { formatter: (v, c) => `${(v/totalRevenue*100).toFixed(1)}%`, color: 'white', font: {size: 12} } },
+      // تنظیم نسبت ثابت برای دونات: 1
+      aspectRatio: 1 
+    });
+
+    // Holdings Polar
+    createChart('holdingsPolar', 'polarArea', {
+      labels: D.holdings.map(h=>h.name.replace('(هلدینگ)','')),
+      datasets: [{ data: D.holdings.map(h=>h.perf), backgroundColor: [palette[0], palette[1], palette[2], palette[3]], borderWidth: 2 }]
+    }, {
+      scales: { r: { suggestedMin: 50, suggestedMax: 110, grid: { color: 'rgba(0,0,0,0.05)' } } },
+      plugins: { datalabels: { color: '#333', formatter: (v, c) => `${v}%`, anchor: 'end', align: 'end' } },
+      aspectRatio: 1
+    });
+
+    // Radar Main
+    createChart('radarMain', 'radar', {
+      labels: ['شفافیت حسابرسی','پایداری مالی','کارایی عملیاتی','نوآوری','پوشش جغرافیایی'],
+      datasets: [
+        {label:'۱۴۰۳', data:[88,83,87,74,90], fill:true, backgroundColor:'rgba(37,99,235,0.2)', borderColor:palette[0], pointBackgroundColor: 'white'},
+        {label:'۱۴۰۲', data:[80,78,82,68,86], fill:true, backgroundColor:'rgba(148,163,184,0.1)', borderColor:'#94a3b8', pointBackgroundColor: 'white'}
+      ]
+    }, { scales: { r: { suggestedMin: 50 } }, plugins: { datalabels: { display: false } } });
+
+    // Profit Stack
+    const profitData = {
+        labels: ['ایجاد محیط', 'بنیاد بتن', 'توسعه مسکن', 'مستقل‌ها'],
+        TotalProfit: [240, 300, 390, 180],
+        CostOfCapital: [-50, -40, -60, -20],
+    };
+    createChart('profitStack', 'bar', {
+        labels: profitData.labels,
+        datasets: [
+            {label: 'سود عملیاتی', data: profitData.TotalProfit, backgroundColor: palette[1], stack: 'Stack 0'},
+            {label: 'هزینه سرمایه/مالیات', data: profitData.CostOfCapital, backgroundColor: palette[5], stack: 'Stack 0'}
+        ]
+    }, { scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, grid: { drawBorder: false } } }, plugins: { datalabels: { display: false } } });
+  }
+
+  /* ========================= رندر بخش هلدینگ‌ها (Holdings Sections) ========================= */
+  function randomGradient(){
+    const a = palette[Math.floor(Math.random()*palette.length)];
+    const b = palette[Math.floor(Math.random()*palette.length)];
+    return `${a}, ${b}`;
+  }
+
+  function renderHoldingsSections(){
+    const container = document.getElementById('holdingsSections'); 
+    container.innerHTML='';
+
+    D.holdings.forEach(h=>{
+      const section = document.createElement('section');
+      section.className = 'card p-4';
+      section.innerHTML = `
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
+          <div>
+            <h3 class="font-semibold text-lg">${h.name}</h3>
+            <p class="text-xs muted mt-1">
+              درآمد: <strong>${toLocale(h.revenue)}</strong> م.ریال — سود: <strong>${toLocale(h.profit)}</strong> م.ریال — تحقق: **${h.perf}%**
+            </p>
+          </div>
+          <div class="flex items-center gap-3 self-end sm:self-center">
+            <img src="${h.icon}" onerror="this.src='https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/ToseMaskan.jpg'" class="icon-sm flex-shrink-0" alt="لوگو">
+            <div class="text-xs muted text-left">زیرمجموعه‌ها: **${h.subs.length}**</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="chart-wrap p-2">
+            <h4 class="font-medium mb-2 text-sm text-center">سهم درآمد زیرمجموعه‌ها</h4>
+            <canvas id="donut-${h.id}" class="small-canvas"></canvas>
+          </div>
+          <div class="chart-wrap p-2 md:col-span-1">
+            <h4 class="font-medium mb-2 text-sm text-center">درآمد و سود زیرمجموعه‌ها</h4>
+            <canvas id="bar-${h.id}"></canvas>
+          </div>
+          <div class="p-2 md:col-span-1">
+            <h4 class="font-medium mb-2 text-sm text-center">نوار پیشرفت KPI</h4>
+            <div id="progress-${h.id}" class="space-y-3"></div>
+          </div>
+        </div>
+      `;
+      container.appendChild(section);
+
+      // Donut for subcompanies
+      createChart(`donut-${h.id}`, 'doughnut', {
+        labels: h.subs.map(s=>s.name.replace('بنیاد بتن ','').replace('توسعه مسکن ','')),
+        datasets: [{data: h.subs.map(s=>s.revenue), backgroundColor: palette, borderWidth: 1}]
+      }, { 
+          cutout: '60%', 
+          plugins: { 
+              legend: { display: false }, 
+              datalabels: { formatter: (v, c) => v, font: {size: 10}, display: 'auto'} 
+          },
+          aspectRatio: 1
+      }, [ChartDataLabels]);
+
+      // Bar compare for subcompanies
+      createChart(`bar-${h.id}`, 'bar', {
+        labels: h.subs.map(s=>s.name.replace('بنیاد بتن ','').replace('توسعه مسکن ','')),
+        datasets: [
+          {label:'درآمد', data: h.subs.map(s=>s.revenue), backgroundColor: palette[3]},
+          {label:'سود', data: h.subs.map(s=>s.profit), backgroundColor: palette[2]}
+        ]
+      }, { 
+        indexAxis: 'y', 
+        scales: { x: { grid: { drawBorder: false } }, y: { grid: { display: false } } },
+        plugins: { legend: { position: 'top' }, datalabels: { display: false } }
+      });
+
+      // Progress bars
+      const progressRoot = document.getElementById(`progress-${h.id}`);
+      h.subs.forEach(s=>{
+        const wrap = document.createElement('div');
+        wrap.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div class="text-xs">${s.name.replace('بنیاد بتن ','').replace('توسعه مسکن ','')}</div>
+            <div class="text-xs muted font-medium">${s.perf}%</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${s.perf}%; background:linear-gradient(90deg,${randomGradient()});"></div>
+          </div>
+        `;
+        progressRoot.appendChild(wrap);
+      });
+    });
+  }
+
+  /* ========================= شرکت‌های مستقل و نمودارهای پایینی (تکمیل شده) ========================= */
+  function renderLowerCharts() {
+    // Independent Donut
+    createChart('independentDonut', 'doughnut', {
+      labels: D.independents.map(i=>i.name),
+      datasets: [{data: D.independents.map(i=>i.revenue), backgroundColor: palette, borderWidth: 2}]
+    }, { 
+        cutout: '60%', 
+        plugins: { 
+            datalabels: { formatter: (v, c) => v, font: {size: 10} } 
+        },
+        aspectRatio: 1
+    });
+
+    // Independent Cards and Progress (همانند قبل)
+    const cardsRoot = document.getElementById('independentCards');
+    const progRoot = document.getElementById('independentProgress');
+    cardsRoot.innerHTML = ''; progRoot.innerHTML = '';
+    
+    D.independents.forEach(c=>{
+      const div = document.createElement('div');
+      div.className = 'flex items-center gap-3 p-2 rounded hover:bg-slate-50 transition';
+      div.innerHTML = `
+        <img src="${c.icon||''}" onerror="this.src='https://bonyadmaskan.github.io/Subsidiaries/Subsidiaries_Images/ToseMaskan.jpg'" class="icon-sm flex-shrink-0" alt="لوگو">
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium truncate">${c.name}</div>
+          <div class="text-xs muted mt-1">درآمد: **${toLocale(c.revenue)}** م.ریال — سود: ${toLocale(c.profit)}</div>
+        </div>
+      `;
+      cardsRoot.appendChild(div);
+
+      const p = document.createElement('div');
+      p.innerHTML = `
+        <div class="flex justify-between items-center">
+          <div class="text-sm">${c.name}</div>
+          <div class="text-xs muted font-medium">${c.perf}%</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${c.perf}%; background:linear-gradient(90deg,${randomGradient()});"></div>
+        </div>
+      `;
+      progRoot.appendChild(p);
+    });
+
+    // Ranking Bar Chart (Top 12)
+    const all = [
+      ...D.holdings.map(h => ({ name: h.name, profit: h.profit, isHolding: true })),
+      ...D.holdings.flatMap(h => h.subs.map(s => ({ name: s.name, profit: s.profit, isHolding: false }))),
+      ...D.independents.map(i => ({ name: i.name, profit: i.profit, isHolding: false }))
+    ];
+    
+    all.sort((a,b)=>b.profit - a.profit);
+    const top12 = all.slice(0,12);
+
+    createChart('rankingBar', 'bar', {
+      labels: top12.map(x=>x.name.replace('شرکت ','').replace('(هلدینگ)','')),
+      datasets:[{
+        label:'سود خالص (میلیارد)', 
+        data: top12.map(x=>x.profit), 
+        backgroundColor: top12.map(x => x.isHolding ? palette[0] : palette[1]),
+      }]
+    }, {
+      indexAxis:'y', 
+      scales:{x:{beginAtZero:true, grid: { drawBorder: false }}, y: { grid: { display: false } }},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${toLocale(c.parsed.x)}`}}}
+    });
+
+    // Bubble Chart (Projects)
+    const bubbleDataPoints = [
+      {x: 12, y: 85, r: 12, label:'توسعه مسکن - برج آفتاب (۱.۲۰۰ م.ر)'},
+      {x: 8, y: 78, r: 10, label:'بنیاد بتن - کارخانه جدید (۹۰۰ م.ر)'},
+      {x: 5, y: 92, r: 8, label:'ایجاد محیط - نوسازی اکباتان (۶۰۰ م.ر)'},
+      {x: 3, y: 95, r: 6, label:'سامان محیط - مدیریت اراضی (۴۰۰ م.ر)'}
+    ];
+    
+    createChart('bubbleChart', 'bubble', {
+      datasets:[{
+        label:'پروژه‌ها', 
+        data: bubbleDataPoints.map(d => ({x: d.x, y: d.y, r: d.r})),
+        backgroundColor:'rgba(59,130,246,0.6)',
+        borderColor: 'rgba(59,130,246,1)',
+        borderWidth: 2
+      }]
+    }, {
+      plugins:{
+        legend:{display:false},
+        datalabels: { 
+          display: true, 
+          formatter: (v, c) => bubbleDataPoints[c.dataIndex].label.split('-')[0].trim(),
+          color: '#333',
+          font: { size: 10 }
+        },
+        tooltip:{
+          callbacks:{
+            title: c => bubbleDataPoints[c[0].dataIndex].label.split('-')[0].trim(),
+            label: c => bubbleDataPoints[c.dataIndex].label.split('-')[1].trim(),
+            afterLabel: c => `شاخص: ${c.parsed.x}, پیشرفت: ${c.parsed.y}%`
+          }
+        }
+      }, 
+      scales:{
+        x:{title:{display:true,text:'شاخص پیچیدگی/تعداد پروژه'}}, 
+        y:{title:{display:true,text:'درصد پیشرفت (فیزیکی/مالی)'}}
+      },
+      aspectRatio: 1
+    }, [ChartDataLabels]);
+  }
+
+  /* ========================= اجرای نهایی ========================= */
+  document.addEventListener('DOMContentLoaded', () => {
+      renderGeneralCharts();
+      renderHoldingsSections();
+      renderLowerCharts();
+  });
+
+  </script>
+</body>
+</html>
